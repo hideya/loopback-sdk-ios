@@ -27,7 +27,7 @@
     [suite addTest:[self testCaseWithSelector:@selector(testGetAll)]];
     [suite addTest:[self testCaseWithSelector:@selector(testGetByName)]];
     [suite addTest:[self testCaseWithSelector:@selector(testCreate)]];
-    [suite addTest:[self testCaseWithSelector:@selector(testRemove)]];
+    [suite addTest:[self testCaseWithSelector:@selector(testDelete)]];
     return suite;
 }
 
@@ -76,13 +76,17 @@
     ASYNC_TEST_END
 }
 
-- (void)testRemove {
+- (void)testDelete {
     ASYNC_TEST_START
     [self.repository getContainerWithName:@"containerTest" success:^(LBContainer *container) {
         XCTAssertNotNil(container, @"Container not found.");
         [container deleteWithSuccess:^(void) {
-            ASYNC_TEST_SIGNAL
-        }failure:ASYNC_TEST_FAILURE_BLOCK];
+            [self.repository getContainerWithName:@"containerTest" success:^(LBContainer *container) {
+                XCTFail(@"Container found after deletion");
+            } failure:^(NSError *err) {
+                ASYNC_TEST_SIGNAL
+            }];
+        } failure:ASYNC_TEST_FAILURE_BLOCK];
     } failure:ASYNC_TEST_FAILURE_BLOCK];
     ASYNC_TEST_END
 }

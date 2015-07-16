@@ -20,19 +20,17 @@
                }
                failure:failure];
 }
-
+/*
 - (void)getFileWithName:(NSString*)name
-              localPath:(NSString*)localPath
                 success:(LBFileGetSuccessBlock)success
                 failure:(SLFailureBlock)failure {
     LBContainerRepository* containerRepo = (LBContainerRepository*)[self repository];
+
     [containerRepo.fileRepository getFileWithName:name
-                                        localPath:localPath
-                                        container:self.name
                                           success:success
                                           failure:failure];
 }
-
+*/
 @end
 
 @interface LBContainerRepository ()
@@ -69,11 +67,11 @@
 }
 
 - (LBFileRepository *)fileRepository {
-    if (_fileRepository == nil) {
+    if (self.fileRepository == nil) {
         LBRESTAdapter* adapter = (LBRESTAdapter*)self.adapter;
         self.fileRepository = (LBFileRepository *)[adapter repositoryWithClass:[LBFileRepository class]];
     }
-    return _fileRepository;
+    return self.fileRepository;
 }
 
 - (void)createContainerWithName:(NSString*)name

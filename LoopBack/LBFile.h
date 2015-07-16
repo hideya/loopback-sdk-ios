@@ -7,29 +7,15 @@
 
 #import "LBModel.h"
 
+@class LBContainer;
+
 /**
  * A local representative of a file instance on the server.
  */
 @interface LBFile : LBModel
 
 @property (nonatomic, copy) NSString *name;
-@property (nonatomic, copy) NSString *localPath;
-
-@property (nonatomic, copy) NSString *container;
-
-/**
- * Blocks of this type are executed when
- * LBFile:uploadWithSuccess:failure: is successful.
- */
-typedef void (^LBFileUploadSuccessBlock)();
-/**
- * Uploads the file to the server.
- *
- * @param success  The block to be executed when the upload is successful.
- * @param failure  The block to be executed when the upload fails.
- */
-- (void)uploadWithSuccess:(LBFileUploadSuccessBlock)success
-                  failure:(SLFailureBlock)failure;
+@property (nonatomic, strong) LBContainer *container;
 
 /**
  * Blocks of this type are executed when
@@ -42,8 +28,33 @@ typedef void (^LBFileDownloadSuccessBlock)();
  * @param success  The block to be executed when the download is successful.
  * @param failure  The block to be executed when the download fails.
  */
-- (void)downloadWithSuccess:(LBFileDownloadSuccessBlock)success
-                    failure:(SLFailureBlock)failure;
+- (void)downloadWithFilePath:(NSString *)localPath
+                     success:(LBFileDownloadSuccessBlock)success
+                     failure:(SLFailureBlock)failure;
+
+- (void)downloadWithOutputStream:(NSOutputStream *)outputStream
+                         success:(LBFileDownloadSuccessBlock)success
+                         failure:(SLFailureBlock)failure;
+
+typedef void (^LBFileDownloadToDataSuccessBlock)(NSData *data);
+
+- (void)downloadAsDataWithSuccess:(LBFileDownloadToDataSuccessBlock)success
+                          failure:(SLFailureBlock)failure;
+
+
+/**
+ * Blocks of this type are executed when
+ * LBFile:deleteWithSuccess:failure: is successful.
+ */
+typedef void (^LBFileDeleteSuccessBlock)();
+/**
+ * Delete the file from the server.
+ *
+ * @param success  The block to be executed when the deletion is successful.
+ * @param failure  The block to be executed when the deletion fails.
+ */
+- (void)deleteWithSuccess:(LBFileDeleteSuccessBlock)success
+                  failure:(SLFailureBlock)failure;
 
 @end
 
@@ -54,16 +65,27 @@ typedef void (^LBFileDownloadSuccessBlock)();
 
 + (instancetype)repository;
 
-/**
- * Creates a file with the given data
- *
- * @param  name       The file name.
- * @param  localPath  The local path to the file, without file name.
- * @param  container  The file's container.
- */
-- (LBFile *)createFileWithName:(NSString*)name
-                     localPath:(NSString*)localPath
-                     container:(NSString*)container;
+@property (nonatomic, strong) LBContainer *container;
+
+typedef void (^LBFileUploadSuccessBlock)(LBFile* file);
+
+- (void)uploadWithFilePath:(NSString *)localPath
+                   success:(LBFileUploadSuccessBlock)success
+                   failure:(SLFailureBlock)failure;
+
+- (void)uploadWithName:(NSString *)name
+                  data:(NSData *)data
+           contentType:(NSString *)contentType
+               success:(LBFileUploadSuccessBlock)success
+               failure:(SLFailureBlock)failure;
+
+- (void)uploadWithName:(NSString *)name
+           inputStream:(NSInputStream *)inputStream
+           contentType:(NSString *)contentType
+                length:(NSInteger)length
+               success:(LBFileUploadSuccessBlock)success
+               failure:(SLFailureBlock)failure;
+
 
 /**
  * Blocks of this type are executed when
@@ -74,14 +96,16 @@ typedef void (^LBFileGetSuccessBlock)(LBFile* file);
  * Gets the file with the given name.
  *
  * @param  name       The file name.
- * @param  localPath  The local path to the file, without file name.
- * @param  container  The file's container.
  * @param  success    The block to be executed when the get is successful.
  * @param  failure    The block to be executed when the get fails.
  */
 - (void)getFileWithName:(NSString*)name
-              localPath:(NSString*)localPath
-              container:(NSString*)container
                 success:(LBFileGetSuccessBlock)success
                 failure:(SLFailureBlock)failure;
+
+typedef void (^LBGetAllFilesSuccessBlock)(NSArray* files);
+- (void)getAllFilesWithSuccess:(LBGetAllFilesSuccessBlock)success
+                       failure:(SLFailureBlock)failure;
+
+
 @end
