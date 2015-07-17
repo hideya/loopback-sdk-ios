@@ -36,12 +36,12 @@
 
 - (void)setUp {
     [super setUp];
-    
-    LBRESTAdapter *adapterForContainer = [LBRESTAdapter adapterWithURL:[NSURL URLWithString:@"http://localhost:3000"]];
-    self.containerRepo = (LBContainerRepository*)[adapterForContainer repositoryWithClass:[LBContainerRepository class]];
 
     LBRESTAdapter *adapter = [LBRESTAdapter adapterWithURL:[NSURL URLWithString:@"http://localhost:3000"]];
     self.repository = (LBFileRepository*)[adapter repositoryWithClass:[LBFileRepository class]];
+
+    LBRESTAdapter *adapterForContainer = [LBRESTAdapter adapterWithURL:[NSURL URLWithString:@"http://localhost:3000"]];
+    self.containerRepo = (LBContainerRepository*)[adapterForContainer repositoryWithClass:[LBContainerRepository class]];
 
     ASYNC_TEST_START
     [self.containerRepo getContainerWithName:@"container1" success:^(LBContainer *container) {
