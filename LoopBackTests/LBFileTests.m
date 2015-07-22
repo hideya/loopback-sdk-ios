@@ -28,6 +28,8 @@
     XCTestSuite *suite = [XCTestSuite testSuiteWithName:@"TestSuite for LBFile."];
     [suite addTest:[self testCaseWithSelector:@selector(testGetFile)]];
     [suite addTest:[self testCaseWithSelector:@selector(testGetAllFiles)]];
+    [suite addTest:[self testCaseWithSelector:@selector(testUploadFromStream)]];
+    [suite addTest:[self testCaseWithSelector:@selector(testUploadFromData)]];
     [suite addTest:[self testCaseWithSelector:@selector(testUploadAndDelete)]];
     [suite addTest:[self testCaseWithSelector:@selector(testDownload)]];
     return suite;
@@ -80,6 +82,43 @@
     ASYNC_TEST_END
 }
 
+- (void)testUploadFromStream {
+    NSString *name = @"uploadTest.txt";
+    NSString *contents = @"Testing upload from NSData";
+    NSInputStream* inputStream =
+    [NSInputStream inputStreamWithData:[contents dataUsingEncoding:NSUTF8StringEncoding]];
+    NSUInteger bytes = [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+
+    ASYNC_TEST_START
+    [self.repository uploadWithName:name
+                        inputStream:inputStream
+                        contentType:@"text/plain"
+                             length:bytes
+                            success:^(LBFile *file) {
+                                XCTAssertNotNil(file, @"File not found.");
+                                XCTAssertEqualObjects(file.name, name, @"Invalid name");
+                                ASYNC_TEST_SIGNAL
+                            } failure:ASYNC_TEST_FAILURE_BLOCK];
+    ASYNC_TEST_END
+}
+
+- (void)testUploadFromData {
+    NSString *name = @"uploadTest.txt";
+    NSString *contents = @"Testing upload from NSData";
+    NSData *data = [contents dataUsingEncoding:NSUTF8StringEncoding];
+
+    ASYNC_TEST_START
+    [self.repository uploadWithName:name
+                               data:data
+                        contentType:@"text/plain"
+                            success:^(LBFile *file) {
+                                XCTAssertNotNil(file, @"File not found.");
+                                XCTAssertEqualObjects(file.name, name, @"Invalid name");
+                                ASYNC_TEST_SIGNAL
+                            } failure:ASYNC_TEST_FAILURE_BLOCK];
+    ASYNC_TEST_END
+}
+
 - (void)testUploadAndDelete {
     NSString *fileName = @"uploadTest.txt";
     NSString *tmpDir = NSTemporaryDirectory();
@@ -91,7 +130,7 @@
         [fileManager removeItemAtPath:fullPath error:nil];
     }
 
-    NSString* contents = @"Upload test";
+    NSString *contents = @"Upload test";
     [contents writeToFile:fullPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
 
     ASYNC_TEST_START
