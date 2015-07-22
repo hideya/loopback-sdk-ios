@@ -120,7 +120,6 @@ static NSString *mimeTypeForFileName(NSString *fileName) {
     NSInteger length = attributes.fileSize;
 
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:localPath];
-    [inputStream open];////
     NSString *contentType = mimeTypeForFileName(localPath);
 
     [self uploadWithName:name
@@ -138,7 +137,6 @@ static NSString *mimeTypeForFileName(NSString *fileName) {
                failure:(SLFailureBlock)failure {
 
     NSInputStream *inputStream = [[NSInputStream alloc] initWithData:data];
-    [inputStream open];////
 
     [self uploadWithName:name
              inputStream:inputStream
