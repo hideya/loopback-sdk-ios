@@ -28,10 +28,13 @@
     XCTestSuite *suite = [XCTestSuite testSuiteWithName:@"TestSuite for LBFile."];
     [suite addTest:[self testCaseWithSelector:@selector(testGetFile)]];
     [suite addTest:[self testCaseWithSelector:@selector(testGetAllFiles)]];
+    [suite addTest:[self testCaseWithSelector:@selector(testUploadFile)]];
     [suite addTest:[self testCaseWithSelector:@selector(testUploadFromStream)]];
     [suite addTest:[self testCaseWithSelector:@selector(testUploadFromData)]];
-    [suite addTest:[self testCaseWithSelector:@selector(testUploadAndDelete)]];
-    [suite addTest:[self testCaseWithSelector:@selector(testDownload)]];
+    [suite addTest:[self testCaseWithSelector:@selector(testDelete)]];
+    [suite addTest:[self testCaseWithSelector:@selector(testDownloadWithFilePath)]];
+    [suite addTest:[self testCaseWithSelector:@selector(testDownloadWithOutputStream)]];
+    [suite addTest:[self testCaseWithSelector:@selector(testDownloadAsData)]];
     return suite;
 }
 
@@ -82,11 +85,29 @@
     ASYNC_TEST_END
 }
 
+- (void)testUploadFile {
+    NSString *fileName = @"uploadTest.txt";
+    NSString *tmpDir = NSTemporaryDirectory();
+    NSString *fullPath = [tmpDir stringByAppendingPathComponent:fileName];
+
+    NSString *contents = @"Testing upload from a local file";
+    [contents writeToFile:fullPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+
+    ASYNC_TEST_START
+    [self.repository uploadWithFilePath:fullPath
+                                success:^(LBFile *file) {
+                                    XCTAssertNotNil(file, @"File not found.");
+                                    XCTAssertEqualObjects(file.name, fileName, @"Invalid name");
+                                    ASYNC_TEST_SIGNAL
+                                } failure:ASYNC_TEST_FAILURE_BLOCK];
+    ASYNC_TEST_END
+}
+
 - (void)testUploadFromStream {
     NSString *name = @"uploadTest.txt";
     NSString *contents = @"Testing upload from an NSInputStream";
     NSInputStream* inputStream =
-    [NSInputStream inputStreamWithData:[contents dataUsingEncoding:NSUTF8StringEncoding]];
+        [NSInputStream inputStreamWithData:[contents dataUsingEncoding:NSUTF8StringEncoding]];
     NSUInteger bytes = [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
 
     ASYNC_TEST_START
@@ -119,12 +140,12 @@
     ASYNC_TEST_END
 }
 
-- (void)testUploadAndDelete {
+- (void)testDelete {
     NSString *fileName = @"uploadTest.txt";
     NSString *tmpDir = NSTemporaryDirectory();
     NSString *fullPath = [tmpDir stringByAppendingPathComponent:fileName];
 
-    // Remove it if it currently exists...
+    // Remove a local copy if exists
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:fullPath]) {
         [fileManager removeItemAtPath:fullPath error:nil];
@@ -133,6 +154,7 @@
     NSString *contents = @"Testing upload from a local file";
     [contents writeToFile:fullPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
 
+    // Upload a file then try to delete it
     ASYNC_TEST_START
     [self.repository uploadWithFilePath:fullPath
                                 success:^(LBFile *file) {
@@ -153,12 +175,12 @@
     ASYNC_TEST_END
 }
 
-- (void)testDownload {
+- (void)testDownloadWithFilePath {
     NSString *fileName = @"f1.txt";
     NSString *tmpDir = NSTemporaryDirectory();
     NSString *fullPath = [tmpDir stringByAppendingPathComponent:fileName];
 
-    // Remove it if it currently exists locally...
+    // Remove a local copy if exists
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:fullPath]) {
         [fileManager removeItemAtPath:fullPath error:nil];
@@ -182,5 +204,48 @@
     } failure:ASYNC_TEST_FAILURE_BLOCK];
     ASYNC_TEST_END
 }
+
+- (void)testDownloadWithOutputStream {
+    NSString *fileName = @"f1.txt";
+    NSOutputStream *outputStream = [[NSOutputStream alloc] initToMemory];
+
+    ASYNC_TEST_START
+    [self.repository getFileWithName:fileName success:^(LBFile *file) {
+        XCTAssertNotNil(file, @"File not found.");
+        XCTAssertEqualObjects(file.name, fileName, @"Invalid name");
+
+        [file downloadWithOutputStream:outputStream
+                               success:^() {
+                                   NSData *data =
+                                        [outputStream propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
+                                   [outputStream close];
+                                   NSString *fileContents = [[NSString alloc] initWithData:data
+                                                                                  encoding:NSUTF8StringEncoding];
+                                   XCTAssertEqualObjects(fileContents, @"f1.txt in container1", @"File corrupted");
+                               ASYNC_TEST_SIGNAL
+                           } failure:ASYNC_TEST_FAILURE_BLOCK];
+    } failure:ASYNC_TEST_FAILURE_BLOCK];
+    ASYNC_TEST_END
+}
+
+- (void)testDownloadAsData {
+    NSString *fileName = @"f1.txt";
+
+    ASYNC_TEST_START
+    [self.repository getFileWithName:fileName success:^(LBFile *file) {
+        XCTAssertNotNil(file, @"File not found.");
+        XCTAssertEqualObjects(file.name, fileName, @"Invalid name");
+
+        [file downloadAsDataWithSuccess:^(NSData *data) {
+            NSString *fileContents = [[NSString alloc] initWithData:data
+                                                           encoding:NSUTF8StringEncoding];
+            XCTAssertEqualObjects(fileContents, @"f1.txt in container1", @"File corrupted");
+
+            ASYNC_TEST_SIGNAL
+        } failure:ASYNC_TEST_FAILURE_BLOCK];
+    } failure:ASYNC_TEST_FAILURE_BLOCK];
+    ASYNC_TEST_END
+}
+
 
 @end
