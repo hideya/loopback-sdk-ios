@@ -84,7 +84,7 @@
 
 - (void)testUploadFromStream {
     NSString *name = @"uploadTest.txt";
-    NSString *contents = @"Testing upload from NSData";
+    NSString *contents = @"Testing upload from an NSInputStream";
     NSInputStream* inputStream =
     [NSInputStream inputStreamWithData:[contents dataUsingEncoding:NSUTF8StringEncoding]];
     NSUInteger bytes = [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
@@ -104,7 +104,7 @@
 
 - (void)testUploadFromData {
     NSString *name = @"uploadTest.txt";
-    NSString *contents = @"Testing upload from NSData";
+    NSString *contents = @"Testing upload from an NSData";
     NSData *data = [contents dataUsingEncoding:NSUTF8StringEncoding];
 
     ASYNC_TEST_START
@@ -130,7 +130,7 @@
         [fileManager removeItemAtPath:fullPath error:nil];
     }
 
-    NSString *contents = @"Upload test";
+    NSString *contents = @"Testing upload from a local file";
     [contents writeToFile:fullPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
 
     ASYNC_TEST_START
