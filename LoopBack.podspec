@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.source_files = 'LoopBack/*.{h,m}', 'SLRemoting/*.{h,m}', 'SLAFNetworking/*.{h,m}'
   s.requires_arc = true
 
-  s.ios.deployment_target = '7.0'
+  s.ios.deployment_target = '6.1'
   s.ios.frameworks = 'UIKit', 'Foundation', 'MobileCoreServices', 'SystemConfiguration'
 
 end
