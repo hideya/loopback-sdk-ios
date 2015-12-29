@@ -11,5 +11,5 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '8.0'
   s.ios.frameworks = 'UIKit', 'Foundation', 'MobileCoreServices', 'SystemConfiguration'
-
+  s.module_map = 'LoopBack/module.modulemap'
 end
