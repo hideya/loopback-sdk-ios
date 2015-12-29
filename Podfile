@@ -1,2 +1,2 @@
-platform :ios, '6.1'
+platform :ios, '8.0'
 workspace 'LoopBack'
