@@ -1210,6 +1210,7 @@
 		B3D2211D17722AE800B7CB63 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEFINES_MODULE = YES;
 				DSTROOT = /tmp/LoopBack.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1233,6 +1234,7 @@
 		B3D2211E17722AE800B7CB63 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEFINES_MODULE = YES;
 				DSTROOT = /tmp/LoopBack.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
