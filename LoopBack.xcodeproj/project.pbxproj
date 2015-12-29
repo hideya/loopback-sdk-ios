@@ -1224,6 +1224,7 @@
 					"\"$(SRCROOT)/SLRemoting/js/node_modules/socket.io-client/node_modules/engine.io-client/node_modules/ws/build/Release\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "";
+				MODULEMAP_FILE = module.modulemap;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "${PROJECT_NAME}Headers";
@@ -1248,6 +1249,7 @@
 					"\"$(SRCROOT)/SLRemoting/js/node_modules/socket.io-client/node_modules/engine.io-client/node_modules/ws/build/Release\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "";
+				MODULEMAP_FILE = module.modulemap;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = "${PROJECT_NAME}Headers";
